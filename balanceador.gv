@@ -1,0 +1,54 @@
+digraph {
+	rankdir = "LR"
+	//Estado mid: recorre el archivo balanceando simbolos de apertura y cierre.
+	mid [label = <mid ->, shape  = circle]
+	mid -> error [label = <Y,Z / &epsilon;>];//Y es cualquier caracter que cierra y Z es cualquier caracter de la pila menos Y
+	mid -> error [label = <EOF, A / &epsilon;>];//A es cualquier caracter de la pila
+	mid -> end [label = <EOF, '$' / &epsilon;>];//Fin de archivo correcto
+	mid -> literalCaracter [label = < ' \' ', A / A >];
+	mid -> literalCadena [label = <' \" ', A / A >];
+	mid -> posibleComment [label = <'/', A / A>];
+	mid:n -> mid:s [label = <X,'$' / X$<br/>Y,Y / &epsilon;<br/> C, A / A>];
+	//La ultima linea representa todas las transiciones al mismo estado, contempla tres casos:
+	//1-Todas las transiciones de inicio de un parentesis/llave/corchete
+	//2-Caso por defecto
+	//3-Todas las transiciones de cierre de un parentesis/llave/corchete
+	
+	//Estado literalCaracter: se encarga de manejar los literales de caracter, cadenas entre comillas simples
+	literalCaracter -> mid [label = <' \' ', A / A>];
+	literalCaracter -> literalCaracter [label = <'\\', A / getchar(), A <br/> C, A / A>];
+	//La ultima linea representa todas las transiciones reflexivas, contempla dos casos
+	//1-Secuencias de escape
+	//2-Caso por defecto
+
+	//Estado literalCadena: maneja las cadenas literales entre comillas dobles
+	literalCadena -> mid  [label = <' \" ', A / A>];
+	literalCadena -> literalCadena [label = <'\\', A / getchar(), A <br/> C, A / A>];
+	//La ultima linea representa todas las transiciones reflexivas:
+	//1-Secuencias de escape
+	//2-Caso general
+	
+	//Estado posibleComment: se encarga de identificar si existe un comentario y si corresponde a una o muchas lineas
+	posibleComment -> singleLineComment [label = < '/', A / A>];
+	posibleComment -> multiLineComment [label = <'*', A/ A>];
+	posibleComment -> mid [label = <C,A / A>];
+	
+	//Estado singleLineComment: maneja comentarios de una linea
+	singleLineComment -> mid [label = <'\n', A / A>];
+	singleLineComment -> singleLineComment [label = <C, A / A>];
+
+	//Estado multiLineComment: maneja comentarios de muchas lineas, junto con el siguiente estado
+	multiLineComment -> pOutMLComment [label = <'*', A / A>];//Posible salida de comentario
+	multiLineComment -> multiLineComment [label = <C, A / A>];
+
+	//Estado pOutMLComment: se encarga de identificar el fin de un comentario de multiples lineas
+	pOutMLComment -> mid  [label = <'/', A / A>];//Fin comentario
+	pOutMLComment -> pOutMLComment  [label = <'*', A / A>];
+	pOutMLComment -> multiLineComment [label = <C, A / A>];//No termina el comentario
+
+	//Estado end: si el archivo estÃ?Â¡ balanceado se termina por este estado
+	end [label = <end +>];
+	
+	//Estado error: si el archivo no esta balanceado se termina por este estado
+	error [label = <error +>];
+}
