@@ -8,7 +8,7 @@ digraph {
 	mid -> literalCaracter [label = < ' \' ', A / A >];
 	mid -> literalCadena [label = <' \" ', A / A >];
 	mid -> posibleComment [label = <'/', A / A>];
-	mid:n -> mid:s [label = <X,'$' / X$<br/>Y,Y / &epsilon;<br/> C, A / A>];
+	mid:n -> mid:s [label = <X,'$' / Y$<br/>Y,Y / &epsilon;<br/> C, A / A>];
 	//La ultima linea representa todas las transiciones al mismo estado, contempla tres casos:
 	//1-Todas las transiciones de inicio de un parentesis/llave/corchete
 	//2-Caso por defecto
@@ -16,14 +16,14 @@ digraph {
 	
 	//Estado literalCaracter: se encarga de manejar los literales de caracter, cadenas entre comillas simples
 	literalCaracter -> mid [label = <' \' ', A / A>];
-	literalCaracter -> literalCaracter [label = <'\\', A / getchar(), A <br/> C, A / A>];
+	literalCaracter -> literalCaracter [label = <'\\\\', A / getchar(), A <br/> C, A / A>];
 	//La ultima linea representa todas las transiciones reflexivas, contempla dos casos
 	//1-Secuencias de escape
 	//2-Caso por defecto
 
 	//Estado literalCadena: maneja las cadenas literales entre comillas dobles
 	literalCadena -> mid  [label = <' \" ', A / A>];
-	literalCadena -> literalCadena [label = <'\\', A / getchar(), A <br/> C, A / A>];
+	literalCadena -> literalCadena [label = <'\\\\', A / getchar(), A <br/> C, A / A>];
 	//La ultima linea representa todas las transiciones reflexivas:
 	//1-Secuencias de escape
 	//2-Caso general
@@ -46,7 +46,7 @@ digraph {
 	pOutMLComment -> pOutMLComment  [label = <'*', A / A>];
 	pOutMLComment -> multiLineComment [label = <C, A / A>];//No termina el comentario
 
-	//Estado end: si el archivo estÃ?Â¡ balanceado se termina por este estado
+	//Estado end: si el archivo estÃ??Ã?Â¡ balanceado se termina por este estado
 	end [label = <end +>];
 	
 	//Estado error: si el archivo no esta balanceado se termina por este estado
